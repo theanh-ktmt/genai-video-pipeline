@@ -1,0 +1,6 @@
+Flask
+flask-cors
+loguru
+python-dotenv
+black
+pre-commit
