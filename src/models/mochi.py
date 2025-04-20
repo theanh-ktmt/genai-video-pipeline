@@ -2,7 +2,8 @@ from loguru import logger
 
 import torch
 from diffusers import MochiPipeline
-from src.utils.video_utils import pil_list_to_mp4
+from src.utils.video_utils import pil_list_to_mp4, generate_mock_frames
+from src.utils.server_args import ARGS
 
 
 class MochiModel:
@@ -25,15 +26,20 @@ class MochiModel:
         self.num_frames = num_frames
         self.num_inference_steps = num_inference_steps
         self.fps = fps
+        self.mock_video_generation = ARGS.mock_video_generation
 
         # load the model
-        self.pipe = MochiPipeline.from_pretrained(
-            "genmo/mochi-1-preview", variant="bf16", torch_dtype=torch.bfloat16
-        )
-
-        # enable memory savings
-        self.pipe.enable_model_cpu_offload()
-        self.pipe.enable_vae_tiling()
+        if not self.mock_video_generation:
+            logger.info("Loading Mochi model...")
+            self.pipe = MochiPipeline.from_pretrained(
+                "genmo/mochi-1-preview", variant="bf16", torch_dtype=torch.bfloat16
+            )
+            # enable memory savings
+            self.pipe.enable_model_cpu_offload()
+            self.pipe.enable_vae_tiling()
+        else:
+            logger.info("Mock video generation enabled. Skipping model loading.")
+            self.pipe = None
 
     def generate_video(self, prompt):
         """
@@ -42,13 +48,21 @@ class MochiModel:
         :return: A buffer containing the generated video.
         """
         try:
-            frames = self.pipe(
-                prompt,
-                width=self.width,
-                height=self.height,
-                num_frames=self.num_frames,
-                num_inference_steps=self.num_inference_steps,
-            ).frames[0]
+            if self.mock_video_generation:
+                frames = generate_mock_frames(
+                    num_frames=self.num_frames,
+                    width=self.width,
+                    height=self.height,
+                    text="Mock Video",
+                )
+            else:
+                frames = self.pipe(
+                    prompt,
+                    width=self.width,
+                    height=self.height,
+                    num_frames=self.num_frames,
+                    num_inference_steps=self.num_inference_steps,
+                ).frames[0]
 
             # save frames to a buffer
             video_buffer = pil_list_to_mp4(frames, fps=self.fps)
