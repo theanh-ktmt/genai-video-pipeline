@@ -4,3 +4,5 @@ loguru
 python-dotenv
 black
 pre-commit
+requests
+python-dotenv
