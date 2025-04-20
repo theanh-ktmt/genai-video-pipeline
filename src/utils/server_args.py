@@ -12,6 +12,20 @@ def parse_args():
         action="store_true",
         help="Whether to run mock video generation or not",
     )
+    parser.add_argument(
+        "--llm",
+        type=str,
+        default="gemini",
+        choices=["gemini"],
+        help="LLM model to use",
+    )
+    parser.add_argument(
+        "--video-generation-model",
+        type=str,
+        default="mochi",
+        choices=["mochi"],
+        help="Video generation model to use",
+    )
     return parser.parse_args()
 
 

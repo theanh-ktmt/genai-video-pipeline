@@ -3,6 +3,8 @@ import time
 import requests
 from loguru import logger
 
+from src.utils.prompt_utils import load_prompt, apply_prompt_template
+
 
 class GeminiModel:
     """
@@ -20,6 +22,15 @@ class GeminiModel:
         self.n_retry = n_retry
         self.timeout = timeout
 
+        # load system instruction and template
+        self.system_instruction = load_prompt("prompts/system_instruction.md")
+        logger.info(f"System instruction: \n{self.system_instruction}")
+
+        self.video_generation_template = load_prompt(
+            "prompts/templates/video_generation_template.md"
+        )
+        logger.info(f"Video generation template: \n{self.video_generation_template}")
+
     def process_single_prompt(self, prompt: str) -> str:
         """
         Call the Gemini API with the provided prompt.
@@ -27,18 +38,29 @@ class GeminiModel:
         :param prompt: The prompt to send to the Gemini API.
         :return: The response from the Gemini API.
         """
+        # apply the template to the prompt
+        prompt = apply_prompt_template(prompt, self.video_generation_template)
 
+        # request params
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
         headers = {"Content-Type": "application/json"}
         data = {
+            "system_instruction": {
+                "parts": [
+                    {
+                        "text": self.system_instruction,
+                    }
+                ]
+            },
             "contents": [
                 {
                     "parts": [{"text": prompt}],
                 }
-            ]
+            ],
         }
         params = {"key": self.api_key}
 
+        # try to call the API with retries
         for try_i in range(self.n_retry):
             logger.info(f"Gemini API call attempt {try_i + 1}/{self.n_retry}")
             try:
