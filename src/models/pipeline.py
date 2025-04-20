@@ -4,14 +4,20 @@ from src.models.mochi import MochiModel
 
 
 class VideoGenerationPipeline:
-    def __init__(self):
+    def __init__(self, gpu_id: int = 0):
+        """
+        Initialize the video generation pipeline with the specified GPU ID.
+        :param gpu_id: The GPU ID to use for processing.
+        """
+        self.gpu_id = gpu_id
+
         # initialize the models
         if ARGS.llm == "gemini":
             self.llm = GeminiModel()
         else:
             raise ValueError(f"Unsupported LLM model: {ARGS.llm}")
         if ARGS.video_generation_model == "mochi":
-            self.vid_gen = MochiModel()
+            self.vid_gen = MochiModel(self.gpu_id)
         else:
             raise ValueError(
                 f"Unsupported video generation model: {ARGS.video_generation_model}"
@@ -29,3 +35,6 @@ class VideoGenerationPipeline:
         prompts = self.llm.process_batch_prompts(prompts)
         video_buffers = self.vid_gen.process_batch_prompts(prompts)
         return video_buffers
+
+
+pipeline = VideoGenerationPipeline()

@@ -9,6 +9,7 @@ from src.utils.server_args import ARGS
 class MochiModel:
     def __init__(
         self,
+        gpu_id: int = 0,
         width: int = 848,
         height: int = 480,
         num_frames=84,
@@ -21,6 +22,7 @@ class MochiModel:
         :param fps: Frames per second for the video.
         :param num_frames: Number of frames to generate.
         """
+        self.gpu_id = gpu_id
         self.width = width
         self.height = height
         self.num_frames = num_frames
@@ -32,8 +34,10 @@ class MochiModel:
         if not self.mock_video_generation:
             logger.info("Loading Mochi model...")
             self.pipe = MochiPipeline.from_pretrained(
-                "genmo/mochi-1-preview", variant="bf16", torch_dtype=torch.bfloat16
-            )
+                "genmo/mochi-1-preview",
+                variant="bf16",
+                torch_dtype=torch.bfloat16,
+            ).to(f"cuda:{self.gpu_id}")
             # enable memory savings
             self.pipe.enable_model_cpu_offload()
             self.pipe.enable_vae_tiling()
