@@ -15,7 +15,7 @@ class RequestScheduler:
 
         # intialized worker threads
         self.workers = []
-        for gpu_id in range(self.parallel_size):
+        for gpu_id in range(ARGS.parallel_size):
             logger.info(f"Start worker thread on GPU {gpu_id}")
             worker = WorkerThread(
                 gpu_id,
@@ -62,3 +62,6 @@ class RequestScheduler:
         self.result_tracker.join()
 
         logger.success("All threads stopped.")
+
+
+scheduler = RequestScheduler()

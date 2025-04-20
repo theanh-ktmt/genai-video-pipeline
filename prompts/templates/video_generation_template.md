@@ -1,3 +1,3 @@
-**Original prompt:** {{}}
+**Original prompt:** {}
 
 **Refined prompt:** 

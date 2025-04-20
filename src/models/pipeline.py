@@ -1,6 +1,7 @@
 from src.utils.server_args import ARGS
 from src.models.gemini import GeminiModel
 from src.models.mochi import MochiModel
+from loguru import logger
 
 
 class VideoGenerationPipeline:
@@ -13,11 +14,19 @@ class VideoGenerationPipeline:
 
         # initialize the models
         if ARGS.llm == "gemini":
-            self.llm = GeminiModel()
+            self.llm = GeminiModel(
+                n_retry=3,
+                timeout=20,
+            )
         else:
             raise ValueError(f"Unsupported LLM model: {ARGS.llm}")
         if ARGS.video_generation_model == "mochi":
-            self.vid_gen = MochiModel(self.gpu_id)
+            self.vid_gen = MochiModel(
+                gpu_id=self.gpu_id,
+                num_frames=ARGS.num_frames,
+                num_inference_steps=ARGS.num_inference_steps,
+                fps=ARGS.fps,
+            )
         else:
             raise ValueError(
                 f"Unsupported video generation model: {ARGS.video_generation_model}"
@@ -32,9 +41,7 @@ class VideoGenerationPipeline:
         :param prompts: The prompts to generate a video for.
         :return: A buffer containing the generated video.
         """
-        prompts = self.llm.process_batch_prompts(prompts)
-        video_buffers = self.vid_gen.process_batch_prompts(prompts)
+        if ARGS.enhance_prompts:
+            prompts = self.llm.process_batched_prompts(prompts)
+        video_buffers = self.vid_gen.process_batched_prompts(prompts)
         return video_buffers
-
-
-pipeline = VideoGenerationPipeline()

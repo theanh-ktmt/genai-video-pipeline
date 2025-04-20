@@ -85,7 +85,7 @@ class MochiModel:
         logger.info(f"Processing prompt: {prompt}")
         video_buffer = self.generate_video(prompt)
         if video_buffer:
-            logger.info("Video generation successful.")
+            logger.success("Video generation successful.")
             return video_buffer
         else:
             logger.error("Video generation failed.")
@@ -103,7 +103,7 @@ class MochiModel:
             logger.info(f"Processing prompt: {prompt}")
             video_buffer = self.generate_video(prompt)
             if video_buffer:
-                logger.info("Video generation successful.")
+                logger.success("Video generation successful.")
                 video_buffers.append(video_buffer)
             else:
                 logger.error("Video generation failed.")

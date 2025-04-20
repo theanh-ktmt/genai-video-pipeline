@@ -56,6 +56,29 @@ def parse_args():
         default=1,
         help="Number of GPUs to use for processing",
     )
+    parser.add_argument(
+        "--num-frames",
+        type=int,
+        default=84,
+        help="Number of frames to generate for each video",
+    )
+    parser.add_argument(
+        "--num-inference-steps",
+        type=int,
+        default=64,
+        help="Number of inference steps for video generation",
+    )
+    parser.add_argument(
+        "--fps",
+        type=int,
+        default=30,
+        help="Frames per second for the generated video",
+    )
+    parser.add_argument(
+        "--enhance-prompt",
+        action="store_true",
+        help="Whether to enhance the prompt using LLM or not",
+    )
     return parser.parse_args()
 
 

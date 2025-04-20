@@ -2,8 +2,11 @@ import os
 import time
 import requests
 from loguru import logger
-
+from dotenv import load_dotenv
 from src.utils.prompt_utils import load_prompt, apply_prompt_template
+
+
+load_dotenv()
 
 
 class GeminiModel:
@@ -40,6 +43,7 @@ class GeminiModel:
         """
         # apply the template to the prompt
         prompt = apply_prompt_template(prompt, self.video_generation_template)
+        logger.info(f"Prompt after applying template: \n{prompt}")
 
         # request params
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
@@ -77,7 +81,9 @@ class GeminiModel:
                 if len(response_data["candidates"]) == 0:
                     logger.error("No candidates found in the response.")
                     return None
-                return response_data["candidates"][0]["content"]["parts"][0]["text"]
+                answer = response_data["candidates"][0]["content"]["parts"][0]["text"]
+                logger.info(f"Enhanced prompt: {answer}")
+                return answer
 
             except requests.exceptions.RequestException as e:
                 logger.error(f"Request {try_i + 1} failed: {e}")
@@ -85,7 +91,7 @@ class GeminiModel:
                     logger.error("Max retries reached. Exiting.")
                     raise e
 
-    def process_batch_prompts(self, prompts: list) -> list:
+    def process_batched_prompts(self, prompts: list) -> list:
         """
         Call the Gemini API with a batch of prompts.
         Note that the Gemini API does not support batch processing,
