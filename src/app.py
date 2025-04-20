@@ -8,21 +8,25 @@ sys.path.append(parent_dir)
 from flask import Flask
 from flask_cors import CORS
 from loguru import logger
+from dotenv import load_dotenv
 from src.utils.server_args import ARGS
 from src.routes import register_routes
 
-# Initialize Flask app
+# initialize Flask app
 app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 
-# Main functions
 def main():
+    # load API key from .env file
+    load_dotenv()
+
     # register API routes
     logger.info("Registering API routes...")
     register_routes(app)
 
+    # launch the app
     logger.success(f"App is running on port {ARGS.port}...")
     app.run(host=ARGS.host, port=ARGS.port, threaded=True)
 

@@ -1,32 +1,24 @@
-import requests
 import os
-from dotenv import load_dotenv
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
 from loguru import logger
+from dotenv import load_dotenv
+from src.models.gemini import GeminiModel
 
-# load API key from .env file
+
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+model = GeminiModel(n_retry=3, timeout=20)
+prompts = [
+    "What is the capital of France?",
+    "What is the largest mammal?",
+    "What is the speed of light?",
+    "What is the largest planet in our solar system?",
+]
 
-# request params
-url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-headers = {"Content-Type": "application/json"}
-data = {
-    "contents": [
-        {
-            "parts": [{"text": "Who is the first president of the United States?"}],
-        }
-    ]
-}
-params = {"key": api_key}
-
-# send request
-try:
-    response = requests.post(url, headers=headers, json=data, params=params)
-    response.raise_for_status()
-
-    response_data = response.json()
-    answer = response_data["candidates"][0]["content"]["parts"][0]["text"]
-    logger.info(f"Answer: {answer}")
-
-except Exception as e:
-    logger.info(f"An error occurred: {e}")
+answers = model.process_batch_prompts(prompts)
+for prompt, answer in zip(prompts, answers):
+    logger.info(f"Prompt: {prompt}\nAnswer: {answer}\n")
