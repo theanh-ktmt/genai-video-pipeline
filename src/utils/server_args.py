@@ -75,7 +75,7 @@ def parse_args():
         help="Frames per second for the generated video",
     )
     parser.add_argument(
-        "--enhance-prompt",
+        "--enhance-prompts",
         action="store_true",
         help="Whether to enhance the prompt using LLM or not",
     )

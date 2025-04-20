@@ -9,13 +9,12 @@ sys.path.append(parent_dir)
 import time
 import requests
 from loguru import logger
-from concurrent.futures import ThreadPoolExecutor
 from src.utils.prompt_utils import get_input_prompts
 
 
 # configs
 API_URL = "http://127.0.0.1:5000/generate"
-PROMPTS = get_input_prompts()[:4]
+PROMPTS = get_input_prompts()
 OUTPUT_DIR = "videos"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -48,6 +47,5 @@ def send_request_and_save_video(prompt):
         logger.error(f"Unexpected error with '{prompt}': {str(e)}")
 
 
-logger.info("Starting concurrent video generation requests...")
-with ThreadPoolExecutor() as executor:
-    executor.map(send_request_and_save_video, PROMPTS)
+for prompt in PROMPTS:
+    send_request_and_save_video(prompt)

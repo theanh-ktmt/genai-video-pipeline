@@ -15,6 +15,7 @@ class MochiModel:
         num_frames=84,
         num_inference_steps: int = 64,
         fps=30,
+        max_sequence_length: int = 512,
     ):
         """
         Initialize the MochiModel with the specified number of frames and frames per second.
@@ -28,10 +29,10 @@ class MochiModel:
         self.num_frames = num_frames
         self.num_inference_steps = num_inference_steps
         self.fps = fps
-        self.mock_video_generation = ARGS.mock_video_generation
+        self.max_sequence_length = max_sequence_length
 
         # load the model
-        if not self.mock_video_generation:
+        if not ARGS.mock_video_generation:
             logger.info("Loading Mochi model...")
             self.pipe = MochiPipeline.from_pretrained(
                 "genmo/mochi-1-preview",
@@ -52,7 +53,7 @@ class MochiModel:
         :return: A buffer containing the generated video.
         """
         try:
-            if self.mock_video_generation:
+            if ARGS.mock_video_generation:
                 frames = generate_mock_frames(
                     num_frames=self.num_frames,
                     width=self.width,
@@ -66,6 +67,7 @@ class MochiModel:
                     height=self.height,
                     num_frames=self.num_frames,
                     num_inference_steps=self.num_inference_steps,
+                    max_sequence_length=self.max_sequence_length,
                 ).frames[0]
 
             # save frames to a buffer
