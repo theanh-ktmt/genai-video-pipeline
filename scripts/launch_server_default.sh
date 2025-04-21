@@ -9,4 +9,3 @@ python3 src/app.py \
     --num-inference-steps 64 \
     --fps 30 --seed 2025 \
     --enhance-prompt \
-    # --mock-video-generation \
